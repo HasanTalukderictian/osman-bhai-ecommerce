@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AdminAuthController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Http\Request;
@@ -27,4 +28,6 @@ Route::get('/orders', [OrderController::class, 'index']);
 
 Route::get('/products', [ProductController::class, 'index']);
 Route::post('/products-add', [ProductController::class, 'store']);
+
+Route::get('/admin-all', [DashboardController::class, 'index']);
 
