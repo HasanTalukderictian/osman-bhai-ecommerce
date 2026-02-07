@@ -21,10 +21,19 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+
+Route::middleware('auth:sanctum')->group(function () {
+
+Route::post('/logout', [AuthController::class, 'logout']);
+
+    // Users
+    Route::get('/users', [UserController::class, 'getAllUsers']);
+    Route::post('/users/{id}/toggle-status', [UserController::class, 'toggleStatus']);
+    Route::post('/create-user', [UserController::class, 'createUser']);
+
+});
+
 Route::post('/login', [AuthController::class, 'login']);
-Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
-Route::middleware('auth:sanctum')->get('/users', [UserController::class, 'getAllUsers']);
-Route::middleware('auth:sanctum')->post('/users/{id}/toggle-status', [UserController::class, 'toggleStatus']);
 
 Route::post('/api/edit-userInfo/{id}', [UserInfoController::class, 'update']);
 Route::get('/get-userInfo', [UserInfoController::class, 'index']);
