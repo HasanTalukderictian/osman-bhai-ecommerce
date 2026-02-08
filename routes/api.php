@@ -31,7 +31,12 @@ Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/users/{id}/toggle-status', [UserController::class, 'toggleStatus']);
     Route::post('/create-user', [UserController::class, 'createUser']);
 
+
+
 });
+ Route::get('/dashboard-data', [DashboardController::class, 'index']);
+
+
 
 Route::post('/login', [AuthController::class, 'login']);
 
