@@ -143,6 +143,25 @@ This project follows:
 - AdminController  
 - UserController  
 
+### Installation Guidline
+
+ -composer install
+### Create Environment File
+ -cp .env.example .env
+
+ ### Generate Application Key
+ - php artisan key:generate
+ ### Configure Database in .env
+
+  -DB_DATABASE=your_database_name
+  -DB_USERNAME=root
+  -DB_PASSWORD=
+
+  ### Run Migrations
+  -php artisan serve
+  ### Run Server
+   -php artisan serve
+
 ### Routes
 
 All API routes are declared inside:
