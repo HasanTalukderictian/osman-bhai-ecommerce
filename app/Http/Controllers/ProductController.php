@@ -48,20 +48,21 @@ class ProductController extends Controller
     // =========================
     // List All Products
     // =========================
-     public function index()
-    {
-        $products = Product::all()->map(function ($product) {
-            return [
-                'id' => $product->id,
-                'name' => $product->name,
-                'price' => $product->price,
-                'rating' => $product->rating,
-                'quantity' => $product->quantity,
-                'description' => $product->description,
-                'image_url' => $product->image ? asset('storage/' . $product->image) : null,
-            ];
-        });
+    public function index()
+{
+    $products = Product::orderBy('id', 'desc')->get()->map(function ($product) {
+        return [
+            'id' => $product->id,
+            'name' => $product->name,
+            'price' => $product->price,
+            'rating' => $product->rating,
+            'quantity' => $product->quantity,
+            'description' => $product->description,
+            'image_url' => $product->image ? asset('storage/' . $product->image) : null,
+        ];
+    });
 
-        return response()->json($products);
-    }
+    return response()->json($products);
+}
+
 }
