@@ -10,6 +10,9 @@ class OrderController extends Controller
 {
     public function store(Request $request)
     {
+
+
+
         // Validate input
         $request->validate([
             'customerName' => 'required|string|max:255',
@@ -57,9 +60,11 @@ class OrderController extends Controller
 
 
 
-    public function index()
+public function index()
 {
-    $orders = Order::with(['items.product'])->get();
+    $orders = Order::with(['items.product'])
+                ->latest() // DESC order
+                ->get();
 
     $formatted = $orders->map(function ($order) {
         return [
@@ -80,8 +85,6 @@ class OrderController extends Controller
                     'product_name' => $item->product_name,
                     'price' => $item->price,
                     'quantity' => $item->quantity,
-
-                    // 🔥 MAIN FIX HERE
                     'image_url' => $item->product && $item->product->image
                         ? url('storage/' . $item->product->image)
                         : null
@@ -96,5 +99,6 @@ class OrderController extends Controller
         'data' => $formatted
     ]);
 }
+
 
 }
