@@ -48,6 +48,7 @@ Route::post('/order/store', [OrderController::class, 'store']);
 Route::get('/orders', [OrderController::class, 'index']);
 
 Route::get('/products', [ProductController::class, 'index']);
+Route::delete('/products-del/{id}', [ProductController::class, 'destroy']);
 Route::post('/products-add', [ProductController::class, 'store']);
 
 Route::get('/admin-all', [DashboardController::class, 'index']);
