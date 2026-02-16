@@ -89,4 +89,64 @@ public function destroy($id)
         ]);
     }
 
+    // =========================
+// Update Product by ID
+// =========================
+public function update(Request $request, $id)
+{
+    $product = Product::find($id);
+
+    if (!$product) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Product not found'
+        ], 404);
+    }
+
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'price' => 'required|numeric',
+        'rating' => 'nullable|numeric',
+        'quantity' => 'required|integer',
+        'description' => 'nullable|string',
+        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+    ]);
+
+    // Handle image upload
+    if ($request->hasFile('image')) {
+        // Delete old image if exists
+        if ($product->image && Storage::disk('public')->exists($product->image)) {
+            Storage::disk('public')->delete($product->image);
+        }
+
+        // Store new image
+        $imagePath = $request->file('image')->store('products', 'public');
+        $product->image = $imagePath;
+    }
+
+    // Update other fields
+    $product->name = $request->name;
+    $product->price = $request->price;
+    $product->rating = $request->rating;
+    $product->quantity = $request->quantity;
+    $product->description = $request->description;
+
+    $product->save();
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Product updated successfully',
+        'product' => [
+            'id' => $product->id,
+            'name' => $product->name,
+            'price' => $product->price,
+            'rating' => $product->rating,
+            'quantity' => $product->quantity,
+            'description' => $product->description,
+            'image_url' => $product->image ? asset('storage/' . $product->image) : null,
+        ]
+    ]);
+}
+
+
 }
