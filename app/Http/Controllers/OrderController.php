@@ -101,4 +101,30 @@ public function index()
 }
 
 
+public function destroy($id)
+{
+    // Find the order
+    $order = Order::find($id);
+
+    if (!$order) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Order not found'
+        ], 404);
+    }
+
+    // Delete associated items first
+    $order->items()->delete();
+
+    // Delete the order
+    $order->delete();
+
+    return response()->json([
+        'status' => true,
+        'message' => 'Order deleted successfully'
+    ]);
+}
+
+
+
 }

@@ -46,6 +46,7 @@ Route::get('/get-userInfo', [UserInfoController::class, 'index']);
 Route::post('/admin/login', [AdminAuthController::class, 'login']);
 Route::post('/order/store', [OrderController::class, 'store']);
 Route::get('/orders', [OrderController::class, 'index']);
+Route::delete('/orders/{id}', [OrderController::class, 'destroy']);
 
 Route::get('/products', [ProductController::class, 'index']);
 Route::delete('/products-del/{id}', [ProductController::class, 'destroy']);
