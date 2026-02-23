@@ -20,6 +20,8 @@ class ProductController extends Controller
             'quantity' => 'required|integer',
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'parent_category_id' => 'required|exists:parent_categories,id',
+            'sub_category_id' => 'required|exists:sub_categories,id',
         ]);
 
         $imagePath = null;
@@ -36,6 +38,8 @@ class ProductController extends Controller
             'quantity' => $request->quantity,
             'description' => $request->description,
             'image' => $imagePath,
+            'parent_category_id' => $request->parent_category_id,
+            'sub_category_id' => $request->sub_category_id,
         ]);
 
         return response()->json([
@@ -49,23 +53,28 @@ class ProductController extends Controller
     // List All Products
     // =========================
     public function index()
-{
-    $products = Product::orderBy('id', 'desc')->get()->map(function ($product) {
-        return [
-            'id' => $product->id,
-            'name' => $product->name,
-            'price' => $product->price,
-            'rating' => $product->rating,
-            'quantity' => $product->quantity,
-            'description' => $product->description,
-            'image_url' => $product->image ? asset('storage/' . $product->image) : null,
-        ];
-    });
+    {
+        $products = Product::with(['parentCategory', 'subCategory'])
+            ->orderBy('id', 'desc')
+            ->get()
+            ->map(function ($product) {
+                return [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'price' => $product->price,
+                    'rating' => $product->rating,
+                    'quantity' => $product->quantity,
+                    'description' => $product->description,
+                    'parent_category' => $product->parentCategory?->name,
+                    'sub_category' => $product->subCategory?->name,
+                    'image_url' => $product->image ? asset('storage/' . $product->image) : null,
+                ];
+            });
 
-    return response()->json($products);
-}
+        return response()->json($products);
+    }
 
-public function destroy($id)
+    public function destroy($id)
     {
         $product = Product::find($id);
 
@@ -90,63 +99,124 @@ public function destroy($id)
     }
 
     // =========================
-// Update Product by ID
-// =========================
-public function update(Request $request, $id)
-{
-    $product = Product::find($id);
+    // Update Product by ID
+    // =========================
+    // public function update(Request $request, $id)
+    // {
+    //     $product = Product::find($id);
 
-    if (!$product) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Product not found'
-        ], 404);
-    }
+    //     if (!$product) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Product not found'
+    //         ], 404);
+    //     }
 
-    $request->validate([
-        'name' => 'required|string|max:255',
-        'price' => 'required|numeric',
-        'rating' => 'nullable|numeric',
-        'quantity' => 'required|integer',
-        'description' => 'nullable|string',
-        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-    ]);
+    //     $request->validate([
+    //         'name' => 'required|string|max:255',
+    //         'price' => 'required|numeric',
+    //         'rating' => 'nullable|numeric',
+    //         'quantity' => 'required|integer',
+    //         'description' => 'nullable|string',
+    //         'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+    //     ]);
 
-    // Handle image upload
-    if ($request->hasFile('image')) {
-        // Delete old image if exists
-        if ($product->image && Storage::disk('public')->exists($product->image)) {
-            Storage::disk('public')->delete($product->image);
+    //     // Handle image upload
+    //     if ($request->hasFile('image')) {
+    //         // Delete old image if exists
+    //         if ($product->image && Storage::disk('public')->exists($product->image)) {
+    //             Storage::disk('public')->delete($product->image);
+    //         }
+
+    //         // Store new image
+    //         $imagePath = $request->file('image')->store('products', 'public');
+    //         $product->image = $imagePath;
+    //     }
+
+    //     // Update other fields
+    //     $product->name = $request->name;
+    //     $product->price = $request->price;
+    //     $product->rating = $request->rating;
+    //     $product->quantity = $request->quantity;
+    //     $product->description = $request->description;
+
+    //     $product->save();
+
+    //     return response()->json([
+    //         'success' => true,
+    //         'message' => 'Product updated successfully',
+    //         'product' => [
+    //             'id' => $product->id,
+    //             'name' => $product->name,
+    //             'price' => $product->price,
+    //             'rating' => $product->rating,
+    //             'quantity' => $product->quantity,
+    //             'description' => $product->description,
+    //             'image_url' => $product->image ? asset('storage/' . $product->image) : null,
+    //         ]
+    //     ]);
+    // }
+
+
+    public function update(Request $request, $id)
+    {
+        $product = Product::find($id);
+
+        if (!$product) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Product not found'
+            ], 404);
         }
 
-        // Store new image
-        $imagePath = $request->file('image')->store('products', 'public');
-        $product->image = $imagePath;
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'price' => 'required|numeric',
+            'rating' => 'nullable|numeric',
+            'quantity' => 'required|integer',
+            'description' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'parent_category_id' => 'required|exists:parent_categories,id',
+            'sub_category_id' => 'required|exists:sub_categories,id',
+        ]);
+
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            // Delete old image if exists
+            if ($product->image && Storage::disk('public')->exists($product->image)) {
+                Storage::disk('public')->delete($product->image);
+            }
+
+            // Store new image
+            $imagePath = $request->file('image')->store('products', 'public');
+            $product->image = $imagePath;
+        }
+
+        // Update other fields
+        $product->name = $request->name;
+        $product->price = $request->price;
+        $product->rating = $request->rating;
+        $product->quantity = $request->quantity;
+        $product->description = $request->description;
+        $product->parent_category_id = $request->parent_category_id;
+        $product->sub_category_id = $request->sub_category_id;
+
+        $product->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Product updated successfully',
+            'product' => [
+                'id' => $product->id,
+                'name' => $product->name,
+                'price' => $product->price,
+                'rating' => $product->rating,
+                'quantity' => $product->quantity,
+                'description' => $product->description,
+                'parent_category_id' => $product->parent_category_id,
+                'sub_category_id' => $product->sub_category_id,
+                'image_url' => $product->image ? asset('storage/' . $product->image) : null,
+            ]
+        ]);
     }
-
-    // Update other fields
-    $product->name = $request->name;
-    $product->price = $request->price;
-    $product->rating = $request->rating;
-    $product->quantity = $request->quantity;
-    $product->description = $request->description;
-
-    $product->save();
-
-    return response()->json([
-        'success' => true,
-        'message' => 'Product updated successfully',
-        'product' => [
-            'id' => $product->id,
-            'name' => $product->name,
-            'price' => $product->price,
-            'rating' => $product->rating,
-            'quantity' => $product->quantity,
-            'description' => $product->description,
-            'image_url' => $product->image ? asset('storage/' . $product->image) : null,
-        ]
-    ]);
-}
-
-
 }

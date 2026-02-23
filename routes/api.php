@@ -1,10 +1,13 @@
 <?php
 
+use App\Http\Controllers\AllCategoryController;
 use App\Http\Controllers\Api\AdminAuthController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\ParentCategoryController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\SubCategoryController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserInfoController;
 use Illuminate\Http\Request;
@@ -59,7 +62,11 @@ Route::post('/add-userInfo', [UserInfoController::class, 'store']);
 
 Route::post('/edit-userInfo/{id}', [UserInfoController::class, 'update']);
 
-
+Route::delete('/delete-parent-category/{id}', [ParentCategoryController::class, 'destroy']);
+Route::delete('/delete-sub-category/{id}', [SubCategoryController::class, 'destroy']);
+Route::get('/all-category', [AllCategoryController::class, 'index']);
+Route::post('/parent-category/store', [ParentCategoryController::class, 'store']);
+Route::post('/sub-category/store', [SubCategoryController::class, 'store']);
 
 
 Route::middleware('auth:sanctum')->group(function () {
