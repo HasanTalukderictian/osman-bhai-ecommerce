@@ -64,6 +64,7 @@ Route::post('/edit-userInfo/{id}', [UserInfoController::class, 'update']);
 
 Route::delete('/delete-parent-category/{id}', [ParentCategoryController::class, 'destroy']);
 Route::delete('/delete-sub-category/{id}', [SubCategoryController::class, 'destroy']);
+Route::get('/products/{parent}/{subcategory}', [ProductController::class, 'productsBySubcategory']);
 Route::get('/all-category', [AllCategoryController::class, 'index']);
 Route::post('/parent-category/store', [ParentCategoryController::class, 'store']);
 Route::post('/sub-category/store', [SubCategoryController::class, 'store']);

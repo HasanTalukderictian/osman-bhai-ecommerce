@@ -98,6 +98,40 @@ class ProductController extends Controller
         ]);
     }
 
+   public function productsBySubcategory($parent, $subcategory)
+{
+    $subcategoryName = str_replace('-', ' ', $subcategory);
+
+    $products = Product::with(['parentCategory', 'subCategory'])
+        ->whereHas('parentCategory', function($q) use ($parent) {
+            $q->whereRaw('LOWER(name) = ?', [strtolower($parent)]);
+        })
+        ->whereHas('subCategory', function($q) use ($subcategoryName) {
+            $q->whereRaw('LOWER(name) = ?', [strtolower($subcategoryName)]);
+        })
+        ->orderBy('id', 'desc')
+        ->get()
+        ->map(function ($product) {
+            return [
+                'id' => $product->id,
+                'name' => $product->name,
+                'price' => $product->price,
+                'rating' => $product->rating,
+                'quantity' => $product->quantity,
+                'description' => $product->description,
+                'parent_category' => $product->parentCategory?->name,
+                'sub_category' => $product->subCategory?->name,
+                'image_url' => $product->image ? asset('storage/' . $product->image) : null,
+            ];
+        });
+
+    return response()->json([
+        'success' => true,
+        'data' => $products,
+    ]);
+}
+
+
     // =========================
     // Update Product by ID
     // =========================
