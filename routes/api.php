@@ -7,6 +7,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ParentCategoryController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SubCategoryController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserInfoController;
@@ -61,6 +62,11 @@ Route::get('/admin-all', [DashboardController::class, 'index']);
 Route::post('/add-userInfo', [UserInfoController::class, 'store']);
 
 Route::post('/edit-userInfo/{id}', [UserInfoController::class, 'update']);
+
+
+Route::post('/add-reviews', [ReviewController::class, 'store']);
+Route::delete('/del-reviews/{id}', [ReviewController::class, 'destroy']);
+Route::get('/get-reviews', [ReviewController::class, 'index']);
 
 Route::delete('/delete-parent-category/{id}', [ParentCategoryController::class, 'destroy']);
 Route::delete('/delete-sub-category/{id}', [SubCategoryController::class, 'destroy']);
