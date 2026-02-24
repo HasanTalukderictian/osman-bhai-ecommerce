@@ -3,6 +3,7 @@
 use App\Http\Controllers\AllCategoryController;
 use App\Http\Controllers\Api\AdminAuthController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BannerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ParentCategoryController;
@@ -63,10 +64,15 @@ Route::post('/add-userInfo', [UserInfoController::class, 'store']);
 
 Route::post('/edit-userInfo/{id}', [UserInfoController::class, 'update']);
 
+Route::post('/add-banner', [BannerController::class, 'store']);
+Route::get('/get-banner', [BannerController::class, 'index']);
+Route::delete('/del-banner/{id}', [BannerController::class, 'destroy']);
 
 Route::post('/add-reviews', [ReviewController::class, 'store']);
 Route::delete('/del-reviews/{id}', [ReviewController::class, 'destroy']);
 Route::get('/get-reviews', [ReviewController::class, 'index']);
+
+
 
 Route::delete('/delete-parent-category/{id}', [ParentCategoryController::class, 'destroy']);
 Route::delete('/delete-sub-category/{id}', [SubCategoryController::class, 'destroy']);
