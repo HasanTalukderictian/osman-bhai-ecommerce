@@ -16,5 +16,19 @@ class Product extends Model
         'quantity',
         'description',
         'image',
+        'parent_category_id',
+        'sub_category_id',
     ];
+
+    // Parent Category Relation
+    public function parentCategory()
+    {
+        return $this->belongsTo(ParentCategory::class);
+    }
+
+    // Sub Category Relation
+    public function subCategory()
+    {
+        return $this->belongsTo(SubCategory::class);
+    }
 }

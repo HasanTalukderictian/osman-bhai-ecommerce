@@ -10,6 +10,9 @@ class OrderController extends Controller
 {
     public function store(Request $request)
     {
+
+
+
         // Validate input
         $request->validate([
             'customerName' => 'required|string|max:255',
@@ -55,15 +58,73 @@ class OrderController extends Controller
         ], 200);
     }
 
-    public function index()
-    {
-        // Load orders with related items
-        $orders = Order::with('items')->orderBy('id', 'DESC')->get();
 
+
+public function index()
+{
+    $orders = Order::with(['items.product'])
+                ->latest() // DESC order
+                ->get();
+
+    $formatted = $orders->map(function ($order) {
+        return [
+            'id' => $order->id,
+            'customer_name' => $order->customer_name,
+            'phone' => $order->phone,
+            'address' => $order->address,
+            'district' => $order->district,
+            'thana' => $order->thana,
+            'total_price' => $order->total_price,
+            'delivery_charge' => $order->delivery_charge,
+            'final_total' => $order->final_total,
+            'created_at' => $order->created_at,
+
+            'items' => $order->items->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'product_name' => $item->product_name,
+                    'price' => $item->price,
+                    'quantity' => $item->quantity,
+                    'image_url' => $item->product && $item->product->image
+                        ? url('storage/' . $item->product->image)
+                        : null
+                ];
+            })
+        ];
+    });
+
+    return response()->json([
+        'status' => true,
+        'message' => 'All orders fetched successfully',
+        'data' => $formatted
+    ]);
+}
+
+
+public function destroy($id)
+{
+    // Find the order
+    $order = Order::find($id);
+
+    if (!$order) {
         return response()->json([
-            'status'  => true,
-            'message' => 'All orders fetched successfully',
-            'data'    => $orders
-        ], 200);
+            'status' => false,
+            'message' => 'Order not found'
+        ], 404);
     }
+
+    // Delete associated items first
+    $order->items()->delete();
+
+    // Delete the order
+    $order->delete();
+
+    return response()->json([
+        'status' => true,
+        'message' => 'Order deleted successfully'
+    ]);
+}
+
+
+
 }
