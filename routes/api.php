@@ -4,6 +4,7 @@ use App\Http\Controllers\AllCategoryController;
 use App\Http\Controllers\Api\AdminAuthController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BannerController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ParentCategoryController;
@@ -14,6 +15,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserInfoController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -67,6 +70,11 @@ Route::post('/edit-userInfo/{id}', [UserInfoController::class, 'update']);
 Route::post('/add-banner', [BannerController::class, 'store']);
 Route::get('/get-banner', [BannerController::class, 'index']);
 Route::delete('/del-banner/{id}', [BannerController::class, 'destroy']);
+
+Route::get('/get-contact', [ContactController::class, 'index']);
+Route::post('/add-contact', [ContactController::class, 'store']);
+Route::post('/edit-contact/{id}', [ContactController::class, 'update']);
+Route::delete('/del-contact/{id}', [ContactController::class, 'destroy']);
 
 Route::post('/add-reviews', [ReviewController::class, 'store']);
 Route::delete('/del-reviews/{id}', [ReviewController::class, 'destroy']);
