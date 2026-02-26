@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BannerController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\HeaderController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ParentCategoryController;
 use App\Http\Controllers\ProductController;
@@ -83,6 +84,10 @@ Route::post('/add-team', [TeamController::class, 'store']);
 Route::get('/get-team', [TeamController::class, 'index']);
 Route::delete('/del-team/{id}', [TeamController::class, 'destroy']);
 
+
+Route::post('/add-header', [HeaderController::class, 'store']);
+Route::get('/get-header', [HeaderController::class, 'index']);
+Route::delete('/del-header/{id}', [HeaderController::class, 'destroy']);
 
 Route::post('/add-reviews', [ReviewController::class, 'store']);
 Route::delete('/del-reviews/{id}', [ReviewController::class, 'destroy']);
