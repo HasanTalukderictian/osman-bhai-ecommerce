@@ -11,6 +11,7 @@ use App\Http\Controllers\ParentCategoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SubCategoryController;
+use App\Http\Controllers\TeamController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserInfoController;
 use Illuminate\Http\Request;
@@ -75,6 +76,13 @@ Route::get('/get-contact', [ContactController::class, 'index']);
 Route::post('/add-contact', [ContactController::class, 'store']);
 Route::post('/edit-contact/{id}', [ContactController::class, 'update']);
 Route::delete('/del-contact/{id}', [ContactController::class, 'destroy']);
+
+
+
+Route::post('/add-team', [TeamController::class, 'store']);
+Route::get('/get-team', [TeamController::class, 'index']);
+Route::delete('/del-team/{id}', [TeamController::class, 'destroy']);
+
 
 Route::post('/add-reviews', [ReviewController::class, 'store']);
 Route::delete('/del-reviews/{id}', [ReviewController::class, 'destroy']);
