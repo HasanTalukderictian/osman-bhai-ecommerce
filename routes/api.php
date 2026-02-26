@@ -73,7 +73,7 @@ Route::post('/add-banner', [BannerController::class, 'store']);
 Route::get('/get-banner', [BannerController::class, 'index']);
 Route::delete('/del-banner/{id}', [BannerController::class, 'destroy']);
 
-Route::get('/get-contact', [ContactController::class, 'index']);
+Route::get('/get-contact', [ContactController::class, 'index'])->withoutMiddleware('throttle:api');
 Route::post('/add-contact', [ContactController::class, 'store']);
 Route::post('/edit-contact/{id}', [ContactController::class, 'update']);
 Route::delete('/del-contact/{id}', [ContactController::class, 'destroy']);
@@ -86,7 +86,7 @@ Route::delete('/del-team/{id}', [TeamController::class, 'destroy']);
 
 
 Route::post('/add-header', [HeaderController::class, 'store']);
-Route::get('/get-header', [HeaderController::class, 'index']);
+Route::get('/get-header', [HeaderController::class, 'index'])->withoutMiddleware('throttle:api');
 Route::delete('/del-header/{id}', [HeaderController::class, 'destroy']);
 
 Route::post('/add-reviews', [ReviewController::class, 'store']);
