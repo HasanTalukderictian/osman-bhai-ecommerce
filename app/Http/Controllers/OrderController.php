@@ -63,7 +63,7 @@ class OrderController extends Controller
 public function index()
 {
     $orders = Order::with(['items.product'])
-                ->latest() // DESC order
+                ->latest()
                 ->get();
 
     $formatted = $orders->map(function ($order) {
@@ -77,6 +77,7 @@ public function index()
             'total_price' => $order->total_price,
             'delivery_charge' => $order->delivery_charge,
             'final_total' => $order->final_total,
+            'tracking_number' => $order->tracking_number, // ✅ ADD THIS
             'created_at' => $order->created_at,
 
             'items' => $order->items->map(function ($item) {
@@ -125,6 +126,31 @@ public function destroy($id)
     ]);
 }
 
+
+public function updateTrackingNumber(Request $request, $id)
+{
+    $request->validate([
+        'tracking_number' => 'required|string'
+    ]);
+
+    $order = Order::find($id);
+
+    if (!$order) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Order not found'
+        ], 404);
+    }
+
+    $order->tracking_number = $request->tracking_number;
+    $order->save();
+
+    return response()->json([
+        'status' => true,
+        'message' => 'Tracking number saved successfully',
+        'tracking_number' => $order->tracking_number
+    ]);
+}
 
 
 }

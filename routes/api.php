@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AdminAuthController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BannerController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\CouierController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HeaderController;
 use App\Http\Controllers\OrderController;
@@ -57,6 +58,7 @@ Route::post('/admin/login', [AdminAuthController::class, 'login']);
 Route::post('/order/store', [OrderController::class, 'store']);
 Route::get('/orders', [OrderController::class, 'index']);
 Route::delete('/orders/{id}', [OrderController::class, 'destroy']);
+Route::post('/orders/{id}/tracking', [OrderController::class, 'updateTrackingNumber']);
 
 Route::get('/products', [ProductController::class, 'index']);
 Route::delete('/products-del/{id}', [ProductController::class, 'destroy']);
@@ -107,4 +109,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/create-user', [UserController::class, 'createUser']);
 
+});
+
+Route::prefix('couriers')->group(function () {
+    Route::get('/', [CouierController::class, 'index']);        // List all courier settings
+    Route::post('/', [CouierController::class, 'store']);       // Create new courier
+    Route::delete('/{id}', [CouierController::class, 'destroy']); // Delete courier by ID
 });
