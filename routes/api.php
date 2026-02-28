@@ -12,6 +12,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ParentCategoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\StoreController;
 use App\Http\Controllers\SubCategoryController;
 use App\Http\Controllers\TeamController;
 use App\Http\Controllers\UserController;
@@ -115,4 +116,12 @@ Route::prefix('couriers')->group(function () {
     Route::get('/', [CouierController::class, 'index']);        // List all courier settings
     Route::post('/', [CouierController::class, 'store']);       // Create new courier
     Route::delete('/{id}', [CouierController::class, 'destroy']); // Delete courier by ID
+});
+
+
+
+
+Route::prefix('stores')->group(function () {
+    Route::get('/', [StoreController::class, 'index']);   // List all stores
+    Route::post('/', [StoreController::class, 'store']);  // Create new store
 });
