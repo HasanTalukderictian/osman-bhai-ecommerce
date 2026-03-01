@@ -62,11 +62,14 @@ class OrderController extends Controller
 
 public function index()
 {
-    $orders = Order::with(['items.product'])
-                ->latest() // DESC order
-                ->get();
+    $orders = Order::with([
+        'items.product.images' // VERY IMPORTANT
+    ])
+    ->latest()
+    ->get();
 
     $formatted = $orders->map(function ($order) {
+
         return [
             'id' => $order->id,
             'customer_name' => $order->customer_name,
@@ -77,17 +80,30 @@ public function index()
             'total_price' => $order->total_price,
             'delivery_charge' => $order->delivery_charge,
             'final_total' => $order->final_total,
+            'tracking_number' => $order->tracking_number,
             'created_at' => $order->created_at,
 
             'items' => $order->items->map(function ($item) {
+
+                $imageUrl = null;
+
+                if (
+                    $item->product &&
+                    $item->product->images &&
+                    $item->product->images->count() > 0
+                ) {
+                    $imageUrl = asset(
+                        'storage/' .
+                        $item->product->images->first()->image_path
+                    );
+                }
+
                 return [
                     'id' => $item->id,
                     'product_name' => $item->product_name,
                     'price' => $item->price,
                     'quantity' => $item->quantity,
-                    'image_url' => $item->product && $item->product->image
-                        ? url('storage/' . $item->product->image)
-                        : null
+                    'image_url' => $imageUrl
                 ];
             })
         ];
@@ -99,8 +115,6 @@ public function index()
         'data' => $formatted
     ]);
 }
-
-
 public function destroy($id)
 {
     // Find the order
@@ -125,6 +139,31 @@ public function destroy($id)
     ]);
 }
 
+
+public function updateTrackingNumber(Request $request, $id)
+{
+    $request->validate([
+        'tracking_number' => 'required|string'
+    ]);
+
+    $order = Order::find($id);
+
+    if (!$order) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Order not found'
+        ], 404);
+    }
+
+    $order->tracking_number = $request->tracking_number;
+    $order->save();
+
+    return response()->json([
+        'status' => true,
+        'message' => 'Tracking number saved successfully',
+        'tracking_number' => $order->tracking_number
+    ]);
+}
 
 
 }

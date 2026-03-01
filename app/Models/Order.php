@@ -18,15 +18,14 @@ class Order extends Model
         'total_price',
         'delivery_charge',
         'final_total',
-        'cart_items'
-
+        'cart_items',
+        'tracking_number'
     ];
-
     protected $casts = [
         'cart_items' => 'array',
     ];
-   public function items()
-{
-    return $this->hasMany(OrderItem::class);
-}
+    public function items()
+    {
+        return $this->hasMany(OrderItem::class);
+    }
 }
