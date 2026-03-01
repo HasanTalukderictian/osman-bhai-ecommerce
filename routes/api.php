@@ -11,6 +11,7 @@ use App\Http\Controllers\HeaderController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ParentCategoryController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProductImageController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\SubCategoryController;
@@ -48,7 +49,9 @@ Route::post('/logout', [AuthController::class, 'logout']);
 });
  Route::get('/dashboard-data', [DashboardController::class, 'index']);
 
-
+Route::post('/add-products', [ProductImageController::class, 'store']);
+Route::get('/get-products', [ProductImageController::class, 'index']);
+Route::post('/update-products/{id}', [ProductImageController::class, 'update']);
 
 Route::post('/login', [AuthController::class, 'login']);
 
