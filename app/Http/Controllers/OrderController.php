@@ -62,11 +62,14 @@ class OrderController extends Controller
 
 public function index()
 {
-    $orders = Order::with(['items.product'])
-                ->latest()
-                ->get();
+    $orders = Order::with([
+        'items.product.images' // VERY IMPORTANT
+    ])
+    ->latest()
+    ->get();
 
     $formatted = $orders->map(function ($order) {
+
         return [
             'id' => $order->id,
             'customer_name' => $order->customer_name,
@@ -77,18 +80,30 @@ public function index()
             'total_price' => $order->total_price,
             'delivery_charge' => $order->delivery_charge,
             'final_total' => $order->final_total,
-            'tracking_number' => $order->tracking_number, // ✅ ADD THIS
+            'tracking_number' => $order->tracking_number,
             'created_at' => $order->created_at,
 
             'items' => $order->items->map(function ($item) {
+
+                $imageUrl = null;
+
+                if (
+                    $item->product &&
+                    $item->product->images &&
+                    $item->product->images->count() > 0
+                ) {
+                    $imageUrl = asset(
+                        'storage/' .
+                        $item->product->images->first()->image_path
+                    );
+                }
+
                 return [
                     'id' => $item->id,
                     'product_name' => $item->product_name,
                     'price' => $item->price,
                     'quantity' => $item->quantity,
-                    'image_url' => $item->product && $item->product->image
-                        ? url('storage/' . $item->product->image)
-                        : null
+                    'image_url' => $imageUrl
                 ];
             })
         ];
@@ -100,8 +115,6 @@ public function index()
         'data' => $formatted
     ]);
 }
-
-
 public function destroy($id)
 {
     // Find the order
