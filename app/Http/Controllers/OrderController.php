@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -12,7 +13,10 @@ class OrderController extends Controller
 {
 
 
-    public function store(Request $request)
+
+// 🔥 꼭 add korte hobe
+
+public function store(Request $request)
 {
     // ✅ Validate input
     $request->validate([
@@ -27,7 +31,7 @@ class OrderController extends Controller
         'cartItems' => 'required|array',
     ]);
 
-    // ✅ 🔥 OTP CHECK ADD
+    // ✅ OTP CHECK
     $otpVerified = DB::table('otps')
         ->where('phone', $request->phone)
         ->where('is_verified', 1)
@@ -56,8 +60,25 @@ class OrderController extends Controller
             'final_total'     => $request->finalTotal,
         ]);
 
-        // ✅ Save Order Items
+        // ✅ Save Order Items + Reduce Product Quantity
         foreach ($request->cartItems as $item) {
+
+            $product = Product::find($item['id']);
+
+            if (!$product) {
+                throw new \Exception("Product not found");
+            }
+
+            // 🔥 Stock check
+            if ($product->quantity < $item['quantity']) {
+                throw new \Exception($product->name . " stock not available");
+            }
+
+            // 🔥 Quantity reduce
+            $product->quantity -= $item['quantity'];
+            $product->save();
+
+            // ✅ Save order item
             OrderItem::create([
                 'order_id'      => $order->id,
                 'product_id'    => $item['id'],
@@ -68,7 +89,7 @@ class OrderController extends Controller
             ]);
         }
 
-        // ✅ OTP delete after use (important 🔥)
+        // ✅ OTP delete after use
         DB::table('otps')->where('phone', $request->phone)->delete();
 
         DB::commit();
@@ -90,9 +111,6 @@ class OrderController extends Controller
         ], 500);
     }
 }
-
-
-
 
 
 public function index()
