@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AllCategoryController;
 use App\Http\Controllers\Api\AdminAuthController;
+use App\Http\Controllers\Api\CustomerAuthController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BannerController;
 use App\Http\Controllers\ContactController;
@@ -75,6 +76,11 @@ Route::post('/products-update/{id}', [ProductController::class, 'update']);
 Route::post('/products-add', [ProductController::class, 'store']);
 
 Route::get('/admin-all', [DashboardController::class, 'index']);
+
+
+Route::post('/register', [CustomerAuthController::class, 'register']);
+Route::post('/login', [CustomerAuthController::class, 'login']);
+Route::post('/logout', [CustomerAuthController::class, 'logout']);
 
 Route::post('/add-userInfo', [UserInfoController::class, 'store']);
 
