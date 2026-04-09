@@ -81,6 +81,7 @@ Route::get('/admin-all', [DashboardController::class, 'index']);
 Route::post('/register', [CustomerAuthController::class, 'register']);
 Route::post('/login', [CustomerAuthController::class, 'login']);
 Route::post('/logout', [CustomerAuthController::class, 'logout']);
+Route::middleware('auth:sanctum')->get('/profile', [CustomerAuthController::class, 'profile']);
 
 Route::post('/add-userInfo', [UserInfoController::class, 'store']);
 

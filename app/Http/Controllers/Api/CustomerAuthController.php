@@ -37,28 +37,57 @@ class CustomerAuthController extends Controller
     }
 
     // ✅ LOGIN
+
+
+    // public function login(Request $request)
+    // {
+    //     $request->validate([
+    //         'phone' => 'required',
+    //         'password' => 'required'
+    //     ]);
+
+    //     $user = CustomerLogin::where('phone', $request->phone)->first();
+
+    //     if (!$user || !Hash::check($request->password, $user->password)) {
+    //         return response()->json([
+    //             'status' => false,
+    //             'message' => 'Invalid phone or password'
+    //         ]);
+    //     }
+
+    //     return response()->json([
+    //         'status' => true,
+    //         'message' => 'Login successful',
+    //         'user' => $user
+    //     ]);
+    // }
+
     public function login(Request $request)
-    {
-        $request->validate([
-            'phone' => 'required',
-            'password' => 'required'
-        ]);
+{
+    $request->validate([
+        'phone' => 'required',
+        'password' => 'required'
+    ]);
 
-        $user = CustomerLogin::where('phone', $request->phone)->first();
+    $user = CustomerLogin::where('phone', $request->phone)->first();
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Invalid phone or password'
-            ]);
-        }
-
+    if (!$user || !Hash::check($request->password, $user->password)) {
         return response()->json([
-            'status' => true,
-            'message' => 'Login successful',
-            'user' => $user
+            'status' => false,
+            'message' => 'Invalid phone or password'
         ]);
     }
+
+    // ✅ create token
+    $token = $user->createToken('customer_token')->plainTextToken;
+
+    return response()->json([
+        'status' => true,
+        'message' => 'Login successful',
+        'user' => $user,
+        'token' => $token   // 🔥 important
+    ]);
+}
 
     // ✅ LOGOUT
     public function logout()
@@ -68,5 +97,33 @@ class CustomerAuthController extends Controller
             'message' => 'Logout successful'
         ]);
     }
+
+public function profile(Request $request)
+{
+    try {
+        $user = $request->user(); // 🔥 Sanctum auto user detect
+
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Unauthorized'
+            ], 401);
+        }
+
+        return response()->json([
+            'status' => true,
+            'data' => $user
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Something went wrong',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
+
+
 }
 
