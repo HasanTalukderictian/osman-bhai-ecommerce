@@ -2,15 +2,19 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+// Authenticatable trait import korte hobe
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class CustomerLogin extends Model
+// Model class-ti Authenticatable ke extend korbe
+class CustomerLogin extends Authenticatable
 {
-    use HasApiTokens;
+    use HasApiTokens, Notifiable;
 
-     protected $fillable = [
+    protected $table = 'customer_logins';
+
+    protected $fillable = [
         'first_name',
         'last_name',
         'email',
@@ -20,5 +24,6 @@ class CustomerLogin extends Model
 
     protected $hidden = [
         'password',
+        'remember_token',
     ];
 }

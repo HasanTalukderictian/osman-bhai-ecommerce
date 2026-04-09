@@ -65,7 +65,12 @@ Route::post('/send-otp', [SMSController::class, 'sendOtp']);
 Route::post('/verify-otp', [SMSController::class, 'verifyOtp']);
 
 Route::post('/admin/login', [AdminAuthController::class, 'login']);
-Route::post('/order/store', [OrderController::class, 'store']);
+
+Route::group(['middleware' => 'auth:sanctum'], function() {
+    Route::post('/order/store', [OrderController::class, 'store']);
+});
+
+
 Route::get('/orders', [OrderController::class, 'index']);
 Route::delete('/orders/{id}', [OrderController::class, 'destroy']);
 Route::post('/orders/{id}/tracking', [OrderController::class, 'updateTrackingNumber']);

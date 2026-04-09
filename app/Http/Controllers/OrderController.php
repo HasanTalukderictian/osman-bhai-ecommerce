@@ -29,6 +29,8 @@ public function store(Request $request)
         'deliveryCharge' => 'required|numeric',
         'finalTotal' => 'required|numeric',
         'cartItems' => 'required|array',
+        'cartItems.*.id' => 'required|integer',
+        'cartItems.*.quantity' => 'required|integer|min:1',
     ]);
 
     // ✅ OTP CHECK
@@ -48,9 +50,13 @@ public function store(Request $request)
 
     try {
 
+        // ✅ customer id (optional fallback)
+        $customerId = auth('sanctum')->id() ?? $request->customer_id ?? null;
+
         // ✅ Create Order
         $order = Order::create([
             'customer_name'   => $request->customerName,
+            'customer_id'     => $customerId,
             'phone'           => $request->phone,
             'address'         => $request->address,
             'district'        => $request->district,
@@ -60,7 +66,7 @@ public function store(Request $request)
             'final_total'     => $request->finalTotal,
         ]);
 
-        // ✅ Save Order Items + Reduce Product Quantity
+        // ✅ Loop cart items
         foreach ($request->cartItems as $item) {
 
             $product = Product::find($item['id']);
@@ -74,18 +80,18 @@ public function store(Request $request)
                 throw new \Exception($product->name . " stock not available");
             }
 
-            // 🔥 Quantity reduce
+            // 🔥 Reduce quantity
             $product->quantity -= $item['quantity'];
             $product->save();
 
             // ✅ Save order item
             OrderItem::create([
                 'order_id'      => $order->id,
-                'product_id'    => $item['id'],
+                'product_id'    => $product->id,
                 'product_name'  => $item['product_name'] ?? $item['productName'] ?? 'Unnamed Product',
                 'image_url'     => $item['image_url'] ?? $item['imageUrl'] ?? null,
                 'price'         => $item['price'] ?? 0,
-                'quantity'      => $item['quantity'] ?? 1,
+                'quantity'      => $item['quantity'],
             ]);
         }
 
