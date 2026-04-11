@@ -227,11 +227,65 @@ public function updateTrackingNumber(Request $request, $id)
 
 
 
+public function customerOrders($customerId)
+{
+    $orders = Order::with([
+        'items.product.images'
+    ])
+    ->where('customer_id', $customerId)
+    ->latest()
+    ->get();
 
-    // ✅ 3. STORE ORDER
+    if ($orders->isEmpty()) {
+        return response()->json([
+            'status' => false,
+            'message' => 'No orders found for this customer'
+        ], 404);
+    }
 
+    $formatted = $orders->map(function ($order) {
 
-    // ✅ SMS FUNCTION
+        return [
+            'order_id' => $order->id,
+            'customer_name' => $order->customer_name,
+            'phone' => $order->phone,
+            'address' => $order->address,
+            'total_price' => $order->total_price,
+            'final_total' => $order->final_total,
+            'tracking_number' => $order->tracking_number,
+            'created_at' => $order->created_at,
+
+            'products' => $order->items->map(function ($item) {
+
+                $imageUrl = null;
+
+                if (
+                    $item->product &&
+                    $item->product->images &&
+                    $item->product->images->count() > 0
+                ) {
+                    $imageUrl = asset(
+                        'storage/' . $item->product->images->first()->image_path
+                    );
+                }
+
+                return [
+                    'product_id' => $item->product_id,
+                    'product_name' => $item->product_name,
+                    'price' => $item->price,
+                    'quantity' => $item->quantity,
+                    'image_url' => $imageUrl
+                ];
+            })
+        ];
+    });
+
+    return response()->json([
+        'status' => true,
+        'message' => 'Customer order history fetched successfully',
+        'data' => $formatted
+    ]);
+}
 
 
 }

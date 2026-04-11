@@ -55,7 +55,7 @@ Route::post('/add-products', [ProductImageController::class, 'store']);
 Route::get('/get-products', [ProductImageController::class, 'index']);
 Route::post('/update-products/{id}', [ProductImageController::class, 'update']);
 
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/adminlogin', [AuthController::class, 'login']);
 
 Route::post('/api/edit-userInfo/{id}', [UserInfoController::class, 'update']);
 Route::get('/get-userInfo', [UserInfoController::class, 'index']);
@@ -87,6 +87,8 @@ Route::post('/register', [CustomerAuthController::class, 'register']);
 Route::post('/login', [CustomerAuthController::class, 'login']);
 Route::post('/logout', [CustomerAuthController::class, 'logout']);
 Route::middleware('auth:sanctum')->get('/profile', [CustomerAuthController::class, 'profile']);
+Route::get('/customer-orders/{customerId}', [OrderController::class, 'customerOrders']);
+
 
 Route::post('/add-userInfo', [UserInfoController::class, 'store']);
 
