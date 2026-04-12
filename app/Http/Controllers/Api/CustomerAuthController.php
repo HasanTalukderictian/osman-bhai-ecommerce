@@ -125,5 +125,45 @@ public function profile(Request $request)
 }
 
 
+
+
+public function socialLogin(Request $request)
+{
+    $request->validate([
+        'provider' => 'required|in:google,facebook',
+        'provider_id' => 'required',
+        'email' => 'nullable|email',
+        'name' => 'required'
+    ]);
+
+    // check existing user
+    $user = CustomerLogin::where('provider_id', $request->provider_id)->first();
+
+    if (!$user) {
+        // split name
+        $nameParts = explode(' ', $request->name);
+
+        $user = CustomerLogin::create([
+            'first_name' => $nameParts[0] ?? '',
+            'last_name' => $nameParts[1] ?? '',
+            'email' => $request->email,
+            'provider' => $request->provider,
+            'provider_id' => $request->provider_id,
+            'avatar' => $request->avatar ?? null,
+        ]);
+    }
+
+    // token create
+    $token = $user->createToken('customer_token')->plainTextToken;
+
+    return response()->json([
+        'status' => true,
+        'user' => $user,
+        'token' => $token
+    ]);
+}
+
+
+
 }
 

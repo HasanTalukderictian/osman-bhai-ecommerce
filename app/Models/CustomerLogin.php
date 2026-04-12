@@ -14,13 +14,16 @@ class CustomerLogin extends Authenticatable
 
     protected $table = 'customer_logins';
 
-    protected $fillable = [
-        'first_name',
-        'last_name',
-        'email',
-        'phone',
-        'password',
-    ];
+   protected $fillable = [
+    'first_name',
+    'last_name',
+    'email',
+    'phone',
+    'password',
+    'provider',
+    'provider_id',
+    'avatar'
+];
 
     protected $hidden = [
         'password',

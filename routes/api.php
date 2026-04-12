@@ -88,6 +88,7 @@ Route::post('/login', [CustomerAuthController::class, 'login']);
 Route::post('/logout', [CustomerAuthController::class, 'logout']);
 Route::middleware('auth:sanctum')->get('/profile', [CustomerAuthController::class, 'profile']);
 Route::get('/customer-orders/{customerId}', [OrderController::class, 'customerOrders']);
+Route::post('/social-login', [CustomerAuthController::class, 'socialLogin']);
 
 
 Route::post('/add-userInfo', [UserInfoController::class, 'store']);
