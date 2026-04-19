@@ -10,19 +10,33 @@ use Illuminate\Http\Request;
 class AllCategoryController extends Controller
 {
     //
-      public function index()
-    {
-        // 1. Parent Category সহ SubCategory
-        $categories = ParentCategory::with('subCategories')->get();
+   public function index()
+{
+    $categories = ParentCategory::with('subCategories')
+        ->get()
+        ->map(function ($cat) {
+            return [
+                'id' => $cat->id,
+                'name' => $cat->name,
+                'image' => $cat->image,
+                'image_url' => $cat->image ? asset('storage/' . $cat->image) : null,
 
-        // Optionally: SubCategory standalone
-        $subcategories = SubCategory::all();
+                'sub_categories' => $cat->subCategories->map(function ($sub) {
+                    return [
+                        'id' => $sub->id,
+                        'name' => $sub->name,
+                        'parent_category_id' => $sub->parent_category_id,
+                        'created_at' => $sub->created_at,
+                        'updated_at' => $sub->updated_at,
+                    ];
+                })
+            ];
+        });
 
-        return response()->json([
-            'success' => true,
-            'message' => 'All categories fetched successfully',
-            'data' => $categories,
-            'subcategories' => $subcategories,
-        ]);
-    }
+    return response()->json([
+        'success' => true,
+        'message' => 'All categories fetched successfully',
+        'data' => $categories,
+    ]);
+}
 }

@@ -199,4 +199,40 @@ class ProductController extends Controller
             ]
         ]);
     }
+
+
+    public function productsByParentCategory($parent)
+{
+    $parentName = str_replace('-', ' ', $parent);
+
+    $products = Product::with(['parentCategory', 'subCategory', 'images'])
+        ->whereHas('parentCategory', function ($q) use ($parentName) {
+            $q->whereRaw('LOWER(name) = ?', [strtolower($parentName)]);
+        })
+        ->orderBy('id', 'desc')
+        ->get()
+        ->map(function ($product) {
+            return [
+                'id' => $product->id,
+                'name' => $product->name,
+                'price' => $product->price,
+                'rating' => $product->rating,
+                'quantity' => $product->quantity,
+                'description' => $product->description,
+                'parent_category' => $product->parentCategory?->name,
+                'sub_category' => $product->subCategory?->name,
+                'images' => $product->images->map(function ($img) {
+                    return asset('storage/' . $img->image_path);
+                }),
+                'image_url' => $product->images->first()
+                    ? asset('storage/' . $product->images->first()->image_path)
+                    : null,
+            ];
+        });
+
+    return response()->json([
+        'success' => true,
+        'data' => $products
+    ]);
+}
 }

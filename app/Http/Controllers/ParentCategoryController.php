@@ -10,19 +10,31 @@ class ParentCategoryController extends Controller
 {
     //
 
-    public function store(Request $request)
+public function store(Request $request)
 {
     $request->validate([
-        'name' => 'required|string|max:255'
+        'name' => 'required|string|max:255',
+        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
     ]);
 
+    $imagePath = null;
+
+    if ($request->hasFile('image')) {
+        $imagePath = $request->file('image')->store('categories', 'public');
+    }
+
     $category = ParentCategory::create([
-        'name' => $request->name
+        'name' => $request->name,
+        'image' => $imagePath
     ]);
 
     return response()->json([
         'status' => 'success',
-        'data' => $category
+        'data' => [
+            'id' => $category->id,
+            'name' => $category->name,
+            'image_url' => $category->image ? asset('storage/' . $category->image) : null,
+        ]
     ]);
 }
 
