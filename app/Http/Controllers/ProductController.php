@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Product;
+use App\Models\Rating;
 use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
@@ -235,4 +236,52 @@ class ProductController extends Controller
         'data' => $products
     ]);
 }
+
+
+public function storeRating(Request $request)
+{
+    // ১. ভ্যালিডেশন
+    $request->validate([
+        'product_id'     => 'required|exists:products,id',
+        'price_rating'   => 'required|integer|between:1,5',
+        'value_rating'   => 'required|integer|between:1,5',
+        'quality_rating' => 'required|integer|between:1,5',
+        'service_rating' => 'required|integer|between:1,5',
+        'title'          => 'required|string|max:255',
+        'feedback'       => 'required|string',
+        'image'          => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048', // ২ এমবি লিমিট
+    ]);
+
+    $imagePath = null;
+
+    // ২. ইমেজ আপলোড হ্যান্ডেল করা
+    if ($request->hasFile('image')) {
+        $file = $request->file('image');
+        $filename = time() . '_' . $file->getClientOriginalName();
+        // public/uploads/reviews ফোল্ডারে সেভ হবে
+        $file->move(public_path('uploads/reviews'), $filename);
+        $imagePath = 'uploads/reviews/' . $filename;
+    }
+
+    // ৩. ডাটাবেসে সেভ করা
+    $rating = Rating::create([
+        'product_id'     => $request->product_id,
+        'price_rating'   => $request->price_rating,
+        'value_rating'   => $request->value_rating,
+        'quality_rating' => $request->quality_rating,
+        'service_rating' => $request->service_rating,
+        'title'          => $request->title,
+        'feedback'       => $request->feedback,
+        'image'          => $imagePath,
+    ]);
+
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Review submitted successfully!',
+        'data' => $rating
+    ], 201);
+}
+
+
+
 }

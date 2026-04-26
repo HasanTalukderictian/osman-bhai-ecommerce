@@ -36,4 +36,16 @@ class Product extends Model
 {
     return $this->hasMany(ProductImage::class);
 }
+
+public function ratings()
+{
+    return $this->hasMany(Rating::class);
+}
+
+
+public function reviews()
+{
+    return $this->hasMany(Rating::class, 'product_id');
+}
+
 }

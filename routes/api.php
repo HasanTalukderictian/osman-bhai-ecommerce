@@ -52,6 +52,7 @@ Route::post('/logout', [AuthController::class, 'logout']);
  Route::get('/dashboard-data', [DashboardController::class, 'index']);
 
 Route::post('/add-products', [ProductImageController::class, 'store']);
+
 Route::get('/get-products', [ProductImageController::class, 'index']);
 Route::post('/update-products/{id}', [ProductImageController::class, 'update']);
 
@@ -79,6 +80,7 @@ Route::get('/products', [ProductController::class, 'index']);
 Route::delete('/products-del/{id}', [ProductController::class, 'destroy']);
 Route::post('/products-update/{id}', [ProductController::class, 'update']);
 Route::post('/products-add', [ProductController::class, 'store']);
+Route::post('/store-rating', [ProductController::class, 'storeRating']);
 Route::get('/products/{parent}', [ProductController::class, 'productsByParentCategory']);
 
 Route::get('/admin-all', [DashboardController::class, 'index']);
