@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AboutController;
 use App\Http\Controllers\AllCategoryController;
 use App\Http\Controllers\Api\AdminAuthController;
 use App\Http\Controllers\Api\CustomerAuthController;
@@ -61,6 +62,10 @@ Route::post('/adminlogin', [AuthController::class, 'login']);
 Route::post('/api/edit-userInfo/{id}', [UserInfoController::class, 'update']);
 Route::get('/get-userInfo', [UserInfoController::class, 'index']);
 
+Route::post('/about/store', [AboutController::class, 'store']);
+Route::get('/about/index', [AboutController::class, 'index']);
+Route::post('/about/update/{id}', [AboutController::class, 'update']); // Multipart form-er khetre POST use kora safe
+Route::delete('/about/delete/{id}', [AboutController::class, 'destroy']);
 
 Route::post('/send-otp', [SMSController::class, 'sendOtp']);
 Route::post('/verify-otp', [SMSController::class, 'verifyOtp']);
