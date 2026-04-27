@@ -11,7 +11,7 @@ class Rating extends Model
 
     protected $fillable = [
         'product_id', 'price_rating', 'value_rating',
-        'quality_rating', 'service_rating', 'title', 'feedback', 'image'
+        'quality_rating', 'service_rating', 'title', 'feedback', 'image', 'customer_name'
     ];
 
     public function product()

@@ -247,6 +247,7 @@ public function storeRating(Request $request)
         'value_rating'   => 'required|integer|between:1,5',
         'quality_rating' => 'required|integer|between:1,5',
         'service_rating' => 'required|integer|between:1,5',
+        'customer_name' => 'required|string|max:255',
         'title'          => 'required|string|max:255',
         'feedback'       => 'required|string',
         'image'          => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048', // ২ এমবি লিমিট
@@ -271,6 +272,7 @@ public function storeRating(Request $request)
         'quality_rating' => $request->quality_rating,
         'service_rating' => $request->service_rating,
         'title'          => $request->title,
+        'customer_name'  => $request->customer_name,
         'feedback'       => $request->feedback,
         'image'          => $imagePath,
     ]);

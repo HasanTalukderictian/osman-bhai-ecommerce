@@ -115,12 +115,13 @@ class ProductImageController extends Controller
                         return [
                             'id' => $review->id,
                             'title' => $review->title,
+                             'customer_name' => $review->customer_name,
                             'feedback' => $review->feedback,
                             'price_rating' => $review->price_rating,
                             'value_rating' => $review->value_rating,
                             'quality_rating' => $review->quality_rating,
                             'service_rating' => $review->service_rating,
-                            'image' => $review->image ? asset('storage/' . $review->image) : null,
+                           'image' => $review->image ? asset($review->image) : null,
                             'created_at' => $review->created_at->format('d M Y'),
                         ];
                     }),

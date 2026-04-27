@@ -21,6 +21,7 @@ return new class extends Migration
         $table->integer('value_rating');
         $table->integer('quality_rating');
         $table->integer('service_rating');
+        $table->string('customer_name');
 
         // টেক্সট এবং ইমেজ
         $table->string('title');
