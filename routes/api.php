@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\CustomerAuthController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BannerController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\ContentController;
 use App\Http\Controllers\CouierController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HeaderController;
@@ -66,6 +67,18 @@ Route::post('/about/store', [AboutController::class, 'store']);
 Route::get('/about/index', [AboutController::class, 'index']);
 Route::post('/about/update/{id}', [AboutController::class, 'update']); // Multipart form-er khetre POST use kora safe
 Route::delete('/about/delete/{id}', [AboutController::class, 'destroy']);
+
+
+Route::get('/get-contents', [ContentController::class, 'index']);
+
+// Store - Data save korar jonno
+Route::post('/add-contents', [ContentController::class, 'store']);
+
+// Update - Data edit korar jonno (Put/Patch)
+Route::put('/edit-contents/{id}', [ContentController::class, 'update']);
+
+// Delete - Data muche phelara jonno
+Route::delete('/del-contents/{id}', [ContentController::class, 'destroy']);
 
 Route::post('/send-otp', [SMSController::class, 'sendOtp']);
 Route::post('/verify-otp', [SMSController::class, 'verifyOtp']);
