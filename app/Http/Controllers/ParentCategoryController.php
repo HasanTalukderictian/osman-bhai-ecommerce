@@ -5,38 +5,79 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\ParentCategory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class ParentCategoryController extends Controller
 {
     //
 
-public function store(Request $request)
-{
-    $request->validate([
-        'name' => 'required|string|max:255',
-        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
-    ]);
+ public function store(Request $request)
+    {
+        try {
+            // Log the request for debugging
+            Log::info('Category store request:', $request->all());
 
-    $imagePath = null;
+            $request->validate([
+                'name' => 'required|string|max:255',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+            ]);
 
-    if ($request->hasFile('image')) {
-        $imagePath = $request->file('image')->store('categories', 'public');
+            $imagePath = null;
+
+            if ($request->hasFile('image')) {
+                $file = $request->file('image');
+
+                // Check if file is valid
+                if (!$file->isValid()) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Invalid image file'
+                    ], 400);
+                }
+
+                // Store the image
+                $imagePath = $file->store('categories', 'public');
+
+                if (!$imagePath) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Failed to store image'
+                    ], 500);
+                }
+            }
+
+            $category = ParentCategory::create([
+                'name' => $request->name,
+                'image' => $imagePath
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Category created successfully',
+                'data' => [
+                    'id' => $category->id,
+                    'name' => $category->name,
+                    'image_url' => $imagePath ? asset('storage/' . $imagePath) : null,
+                ]
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+
+        } catch (\Exception $e) {
+            Log::error('Category creation error: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Server Error: ' . $e->getMessage()
+            ], 500);
+        }
     }
-
-    $category = ParentCategory::create([
-        'name' => $request->name,
-        'image' => $imagePath
-    ]);
-
-    return response()->json([
-        'status' => 'success',
-        'data' => [
-            'id' => $category->id,
-            'name' => $category->name,
-            'image_url' => $category->image ? asset('storage/' . $category->image) : null,
-        ]
-    ]);
-}
 
  public function destroy($id)
 {
