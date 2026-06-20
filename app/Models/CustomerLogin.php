@@ -29,4 +29,12 @@ class CustomerLogin extends Authenticatable
         'password',
         'remember_token',
     ];
+
+    public function supportTickets()
+{
+    return $this->hasMany(
+        SupportTicket::class,
+        'customer_login_id'
+    );
+}
 }

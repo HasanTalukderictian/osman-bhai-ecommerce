@@ -4,6 +4,7 @@ use App\Http\Controllers\AboutController;
 use App\Http\Controllers\AllCategoryController;
 use App\Http\Controllers\Api\AdminAuthController;
 use App\Http\Controllers\Api\CustomerAuthController;
+use App\Http\Controllers\Api\SupportTicketController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BannerController;
 use App\Http\Controllers\ContactController;
@@ -41,17 +42,14 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->group(function () {
 
-Route::post('/logout', [AuthController::class, 'logout']);
+    Route::post('/logout', [AuthController::class, 'logout']);
 
     // Users
     Route::get('/users', [UserController::class, 'getAllUsers']);
     Route::post('/users/{id}/toggle-status', [UserController::class, 'toggleStatus']);
     Route::post('/create-user', [UserController::class, 'createUser']);
-
-
-
 });
- Route::get('/dashboard-data', [DashboardController::class, 'index']);
+Route::get('/dashboard-data', [DashboardController::class, 'index']);
 
 Route::post('/add-products', [ProductImageController::class, 'store']);
 
@@ -85,7 +83,7 @@ Route::post('/verify-otp', [SMSController::class, 'verifyOtp']);
 
 Route::post('/admin/login', [AdminAuthController::class, 'login']);
 
-Route::group(['middleware' => 'auth:sanctum'], function() {
+Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::post('/order/store', [OrderController::class, 'store']);
 });
 
@@ -102,7 +100,20 @@ Route::get('/get-product/{id}', [ProductController::class, 'show']);
 Route::post('/store-rating', [ProductController::class, 'storeRating']);
 Route::get('/products/{parent}', [ProductController::class, 'productsByParentCategory']);
 
-Route::get('/admin-all', [DashboardController::class, 'index']);
+
+Route::middleware('auth:sanctum')->group(function () {
+
+    Route::get('/support-tickets', [SupportTicketController::class, 'index']);
+
+    Route::post('/support-tickets', [SupportTicketController::class, 'store']);
+
+    Route::get('/support-tickets/{id}', [SupportTicketController::class, 'show']);
+
+    Route::put('/support-tickets/{id}', [SupportTicketController::class, 'update']);
+
+    Route::delete('/support-tickets/{id}', [SupportTicketController::class, 'destroy']);
+
+});
 
 
 Route::post('/register', [CustomerAuthController::class, 'register']);
@@ -154,7 +165,6 @@ Route::post('/sub-category/store', [SubCategoryController::class, 'store']);
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/create-user', [UserController::class, 'createUser']);
-
 });
 
 Route::prefix('couriers')->group(function () {
