@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Rating;
+use Dotenv\Validator;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
@@ -239,49 +241,142 @@ class ProductController extends Controller
 
 
 public function storeRating(Request $request)
-{
-    // ১. ভ্যালিডেশন
-    $request->validate([
-        'product_id'     => 'required|exists:products,id',
-        'price_rating'   => 'required|integer|between:1,5',
-        'value_rating'   => 'required|integer|between:1,5',
-        'quality_rating' => 'required|integer|between:1,5',
-        'service_rating' => 'required|integer|between:1,5',
-        'customer_name' => 'required|string|max:255',
-        'title'          => 'required|string|max:255',
-        'feedback'       => 'required|string',
-        'image'          => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048', // ২ এমবি লিমিট
-    ]);
+    {
+        try {
+            Log::info('Rating submission request:', $request->all());
 
-    $imagePath = null;
+            // Simple validation using request()->validate()
+            $validated = $request->validate([
+                'product_id'     => 'required|exists:products,id',
+                'price_rating'   => 'required|integer|between:1,5',
+                'value_rating'   => 'required|integer|between:1,5',
+                'quality_rating' => 'required|integer|between:1,5',
+                'service_rating' => 'required|integer|between:1,5',
+                'customer_name'  => 'required|string|max:255',
+                'title'          => 'required|string|max:255',
+                'feedback'       => 'required|string',
+                'image'          => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            ]);
 
-    // ২. ইমেজ আপলোড হ্যান্ডেল করা
-    if ($request->hasFile('image')) {
-        $file = $request->file('image');
-        $filename = time() . '_' . $file->getClientOriginalName();
-        // public/uploads/reviews ফোল্ডারে সেভ হবে
-        $file->move(public_path('uploads/reviews'), $filename);
-        $imagePath = 'uploads/reviews/' . $filename;
+            $imagePath = null;
+
+            // Handle image upload
+            if ($request->hasFile('image')) {
+                $file = $request->file('image');
+                $filename = time() . '_' . $file->getClientOriginalName();
+
+                // Create directory if it doesn't exist
+                $uploadPath = public_path('uploads/reviews');
+                if (!file_exists($uploadPath)) {
+                    mkdir($uploadPath, 0777, true);
+                }
+
+                $file->move($uploadPath, $filename);
+                $imagePath = 'uploads/reviews/' . $filename;
+            }
+
+            // Create rating
+            $rating = Rating::create([
+                'product_id'     => $validated['product_id'],
+                'price_rating'   => $validated['price_rating'],
+                'value_rating'   => $validated['value_rating'],
+                'quality_rating' => $validated['quality_rating'],
+                'service_rating' => $validated['service_rating'],
+                'title'          => $validated['title'],
+                'customer_name'  => $validated['customer_name'],
+                'feedback'       => $validated['feedback'],
+                'image'          => $imagePath,
+            ]);
+
+            Log::info('Rating created successfully:', ['rating_id' => $rating->id]);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Review submitted successfully!',
+                'data' => $rating
+            ], 201);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+
+        } catch (\Exception $e) {
+            Log::error('Error in storeRating:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Server error: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
-    // ৩. ডাটাবেসে সেভ করা
-    $rating = Rating::create([
-        'product_id'     => $request->product_id,
-        'price_rating'   => $request->price_rating,
-        'value_rating'   => $request->value_rating,
-        'quality_rating' => $request->quality_rating,
-        'service_rating' => $request->service_rating,
-        'title'          => $request->title,
-        'customer_name'  => $request->customer_name,
-        'feedback'       => $request->feedback,
-        'image'          => $imagePath,
-    ]);
 
-    return response()->json([
-        'status' => 'success',
-        'message' => 'Review submitted successfully!',
-        'data' => $rating
-    ], 201);
+public function show($id)
+{
+    try {
+        // Load product with relationships
+        $product = Product::with(['parentCategory', 'subCategory', 'images', 'ratings'])
+            ->find($id);
+
+        if (!$product) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Product not found'
+            ], 404);
+        }
+
+        // Calculate average rating
+        $avgRating = $product->ratings->avg('price_rating') ?? 0;
+
+        // Format response
+        return response()->json([
+            'status' => true,
+            'product' => [
+                'id' => $product->id,
+                'name' => $product->name,
+                'price' => $product->price,
+                'rating' => $product->rating,
+                'quantity' => $product->quantity,
+                'description' => $product->description,
+                'parent_category' => $product->parentCategory?->name,
+                'sub_category' => $product->subCategory?->name,
+                'subcategory_id' => $product->sub_category_id,
+                'avg_rating' => round($avgRating, 1),
+                'images' => $product->images->map(function ($img) {
+                    return asset('storage/' . $img->image_path);
+                })->toArray(),
+                // Fallback for single image (if your old system uses image field)
+                'image' => $product->image ? asset('storage/' . $product->image) : null,
+                // Reviews/ratings
+                'reviews' => $product->ratings->map(function ($rating) {
+                    return [
+                        'id' => $rating->id,
+                        'customer_name' => $rating->customer_name,
+                        'title' => $rating->title,
+                        'feedback' => $rating->feedback,
+                        'price_rating' => $rating->price_rating,
+                        'value_rating' => $rating->value_rating,
+                        'quality_rating' => $rating->quality_rating,
+                        'service_rating' => $rating->service_rating,
+                        'image' => $rating->image ? asset($rating->image) : null,
+                        'created_at' => $rating->created_at,
+                    ];
+                }),
+            ]
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Error fetching product: ' . $e->getMessage()
+        ], 500);
+    }
 }
 
 
